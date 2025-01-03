@@ -16,9 +16,26 @@ default_color = st.color_picker("Pick a color", "#808080")
 r, g, b = tuple(int(default_color[i:i+2], 16) for i in (1, 3, 5))
 
 # RGB sliders
+st.subheader("Adjust RGB Values")
 r = st.slider("Red", 0, 255, r)
 g = st.slider("Green", 0, 255, g)
 b = st.slider("Blue", 0, 255, b)
+
+# Show the selected color and code below the sliders
+hex_color = rgb_to_hex(r, g, b)
+st.markdown("### Selected Color")
+st.markdown(
+    f"""
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <div style="width: 75px; height: 75px; background-color: {hex_color}; border: 1px solid #000;"></div>
+        <div>
+            <b>RGB:</b> ({r}, {g}, {b})<br>
+            <b>HEX:</b> {hex_color}
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # Generate the 3D color cube
 x, y, z = np.meshgrid(np.linspace(0, 255, 20), np.linspace(0, 255, 20), np.linspace(0, 255, 20))
@@ -61,11 +78,3 @@ fig.update_layout(
 
 # Display the 3D cube
 st.plotly_chart(fig)
-
-# Show the selected color code
-hex_color = rgb_to_hex(r, g, b)
-st.markdown(f"**Selected Color:** RGB({r}, {g}, {b}), HEX: {hex_color}")
-st.markdown(
-    f"<div style='width:50px; height:50px; background-color:{hex_color};'></div>", 
-    unsafe_allow_html=True
-)
