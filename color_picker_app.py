@@ -3,15 +3,23 @@
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
+from PIL import Image, ImageDraw
+import io
 
 def rgb_to_hex(r, g, b):
     """Convert RGB values to a HEX color code."""
     return f"#{r:02X}{g:02X}{b:02X}"
 
-# Streamlit app
-st.title("3D RGB Color Picker")
+def apply_background_color(image, color):
+    """Apply a background color to the image."""
+    background = Image.new("RGB", image.size, color)
+    background.paste(image, mask=image.split()[3] if image.mode == "RGBA" else None)
+    return background
 
-# Initial default RGB
+# Streamlit app
+st.title("3D RGB Color Picker with Photo Upload")
+
+# Color Picker
 default_color = st.color_picker("Pick a color", "#808080")
 r, g, b = tuple(int(default_color[i:i+2], 16) for i in (1, 3, 5))
 
@@ -21,7 +29,7 @@ r = st.slider("Red", 0, 255, r)
 g = st.slider("Green", 0, 255, g)
 b = st.slider("Blue", 0, 255, b)
 
-# Show the selected color and code below the sliders
+# Show the selected color
 hex_color = rgb_to_hex(r, g, b)
 st.markdown("### Selected Color")
 st.markdown(
@@ -36,6 +44,30 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+# Photo Upload
+uploaded_file = st.file_uploader("Upload a photo (JPEG or PNG)", type=["jpg", "jpeg", "png"])
+
+if uploaded_file:
+    # Load the uploaded image
+    image = Image.open(uploaded_file)
+    st.image(image, caption="Uploaded Image", use_container_width=True)
+
+    # Apply the selected color as the background
+    st.markdown("### Image with Selected Background Color")
+    updated_image = apply_background_color(image, (r, g, b))
+    st.image(updated_image, caption="Updated Image", use_container_width=True)
+
+    # Save and Download Option
+    buffer = io.BytesIO()
+    updated_image.save(buffer, format="JPEG")
+    buffer.seek(0)
+    st.download_button(
+        label="Download Image",
+        data=buffer,
+        file_name="updated_image.jpg",
+        mime="image/jpeg"
+    )
 
 # Generate the 3D color cube
 x, y, z = np.meshgrid(np.linspace(0, 255, 20), np.linspace(0, 255, 20), np.linspace(0, 255, 20))
