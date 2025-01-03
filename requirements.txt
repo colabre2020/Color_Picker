@@ -1,4 +1,4 @@
-streamlit==1.26.0
-numpy==1.26.0
-plotly==5.17.0
-pillow==10.0.1
+streamlit
+numpy
+plotly
+pillow
